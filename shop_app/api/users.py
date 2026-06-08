@@ -20,6 +20,14 @@ async def get_db():
 async def list_user( db: Session = Depends(get_db)):
     return db.query(UserProfile).all()
 
+@user_router.post("/", response_model=UserProfileOutSchema)
+async def create_user(user: UserProfileInputSchema, db: Session = Depends(get_db)):
+    user_db = UserProfile(**user.dict())
+    db.add(user_db)
+    db.commit()
+    db.refresh(user_db)
+    return user_db
+
 
 @user_router.get('/{user_id}/', response_model=UserProfileOutSchema)
 async def detail_user(user_id: int, db: Session = Depends(get_db)):
